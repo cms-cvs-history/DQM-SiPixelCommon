@@ -4,7 +4,16 @@
 	replace SiPixelDigiSource.isPIB = true
 	replace SiPixelDigiSource.slowDown = false
 
+	# Pixel Cluster Monitoring
+	include "DQM/SiPixelMonitorCluster/data/SiPixelMonitorCluster.cfi"
+	replace SiPixelClusterSource.saveFile = false
+
+	# Pixel RecHit Monitoring
+	include "DQM/SiPixelMonitorRecHit/data/SiPixelMonitorRecHit.cfi"
+	replace SiPixelRecHitSource.saveFile = false
+
 	##online/offline
+	#Digi
 	replace SiPixelDigiSource.modOn = true
 	replace SiPixelDigiSource.ladOn = true
 	replace SiPixelDigiSource.layOn = true
@@ -12,7 +21,23 @@
 	replace SiPixelDigiSource.bladeOn = true
 	replace SiPixelDigiSource.diskOn = true
 	replace SiPixelDigiSource.ringOn = true
+	#Cluster
+	replace SiPixelClusterSource.modOn = true
+	replace SiPixelClusterSource.ladOn = true
+	replace SiPixelClusterSource.layOn = true
+	replace SiPixelClusterSource.phiOn = true
+	replace SiPixelClusterSource.bladeOn = true
+	replace SiPixelClusterSource.diskOn = true
+	replace SiPixelClusterSource.ringOn = true
+	#RecHit
+	replace SiPixelRecHitSource.modOn = true
+	replace SiPixelRecHitSource.ladOn = true
+	replace SiPixelRecHitSource.layOn = true
+	replace SiPixelRecHitSource.phiOn = true	
+	replace SiPixelRecHitSource.bladeOn = true
+	replace SiPixelRecHitSource.diskOn = true
+	replace SiPixelRecHitSource.ringOn = true
 
 
-        sequence siPixelOfflineDQM_source = {SiPixelDigiSource}
+        sequence siPixelOfflineDQM_source = {SiPixelDigiSource, SiPixelClusterSource, SiPixelRecHitSource}
 
