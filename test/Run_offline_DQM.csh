@@ -140,7 +140,6 @@ endif
 	set rsys = "rfio:"
 	set osys = "file:"
 	set iscastor = `echo $filename | grep -o castor`
-	echo $filename
 	set calibtype = `echo $filename | grep -o -e "PixelAlive" -e "SCurve" -e "GainCalibration"`
 	set file_extension = `echo $filename | grep -o -e ".dmp" -e ".root" -e ".dat"`
 	set endrun = `echo $filename | grep -o -e "_[0-9]\{2,\}\."`
@@ -222,29 +221,24 @@ endif
 	    else
 		set has_calibdigis = "false"
 	    endif
-	    echo $has_calibdigis
 	    set has_digis = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelDigis"`
 	    if( $has_digis == "siPixelDigis" ) then
 		set has_digis = "true"
 	    else
 		set has_digis = "false"
 	    endif
-	    echo $has_digis
 	    set has_clusters = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelClusters"`
 	    if( $has_clusters == "siPixelClusters" ) then
 		set has_clusters = "true"
 	    else
 		set has_clusters = "false"
 	    endif
-	    echo $has_clusters
 	    set has_rechits = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelRecHits"`
 	    if( $has_rechits == "siPixelRecHits" ) then
 		set has_rechits = "true"
 	    else
 		set has_rechits = "false"
 	    endif
-	    echo $has_rechits
-
 	endif
 
     if( $all_flag == "true" || $default_flag == "true" ) then
