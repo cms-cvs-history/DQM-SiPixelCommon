@@ -9,7 +9,7 @@ if(-e ../../SiPixelMonitorClient/test/sipixel_monitorelement_skeleton_backup.xml
 
    set all_flag = "false"
     set default_flag = "false"
-    set var_flag = ( 0 0 0 0 0 0 0 0 0 )
+    set var_flag = ( 0 0 0 0 0 0 0 0 0 0 )
 if( !(-d ../../../DQM/SiPixelMonitorClient/test)) then
     echo "Please check out the DQM/SiPixelMonitorClient package"
 else if($#argv > 1) then
@@ -89,6 +89,11 @@ else if($#argv > 1) then
 		     set var_flag[6] = 1
 		    set var_flag[9] = 1
 		    breaksw
+		case Physics:
+		    set var_flag[2] = 1
+		    set var_flag[3] = 1
+		    set var_flag[4] = 1
+		    set var_flag[10] = 1
 		default:
 		    echo "${monlist} is not a valid monitor element choice.  Valid options are: RawData, Digi, Cluster, RecHit, Track, Gain, SCurve, PixelAlive, All.  Choosing All overrides all other options."
 		    breaksw
@@ -293,19 +298,19 @@ endif
 	    if( $depth > 2 ) then
 		if( $depth > 3) then
 		    if( $has_rechits != "true" ) then
-			sed "s/RECSPOT,/siPixelRecHits,/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+			sed "s/RECSPOT/process.siPixelRecHits*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 			cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 			rm temp.xml
 		    endif
 		endif
 		if( $has_clusters != "true" ) then
-			sed "s/CLUSPOT,/siPixelClusters,/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+			sed "s/CLUSPOT/process.siPixelClusters*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 			cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 			rm temp.xml
 		endif
 	    endif
 	    if( $has_digis != "true" ) then
-			sed "s/DIGISPOT,/siPixelDigis,/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+			sed "s/DIGISPOT/process.siPixelDigis*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 			cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 			rm temp.xml
 	    endif
@@ -319,6 +324,7 @@ endif
 	    		rm temp.xml
 			
 		endif
+		set calibration_tag = "CRZT210_V1P::All"
 		sed '/^PHYS/d' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 		rm temp.xml
@@ -330,7 +336,7 @@ endif
 		rm temp.xml
 		
 	else if( $var_flag[6] != 1 ) then
-	  set calibration_tag = "CRZT210_V1P::All"
+	  set calibration_tag = "CRUZET4_V5P::All"
 	   set connect_string = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 	   sed '/^CALIB/d' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
@@ -340,6 +346,10 @@ endif
 	     rm temp.xml
 
 	endif
+	 
+	sed "s/GTAG/$calibration_tag/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
+	rm temp.xml
 
 
 	if( $var_flag[1] == 1 ) then
