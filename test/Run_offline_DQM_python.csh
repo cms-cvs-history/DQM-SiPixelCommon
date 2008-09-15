@@ -9,6 +9,9 @@ if(-e ../../SiPixelMonitorClient/test/sipixel_monitorelement_skeleton_backup.xml
 
    set all_flag = "false"
     set default_flag = "false"
+    set physics_flag = "false"
+    set calib_flag = "false"
+    set opt_flag = "true"
     set var_flag = ( 0 0 0 0 0 0 0 0 0 0 )
 if( !(-d ../../../DQM/SiPixelMonitorClient/test)) then
     echo "Please check out the DQM/SiPixelMonitorClient package"
@@ -90,38 +93,32 @@ else if($#argv > 1) then
 		    set var_flag[9] = 1
 		    breaksw
 		case Physics:
-		    set var_flag[2] = 1
-		    set var_flag[3] = 1
-		    set var_flag[4] = 1
-		    set var_flag[10] = 1
+		    set physics_flag = "true"
+		    cp sipixel_monitorelement_config_physicsdata.xml sipixel_monitorelement_config.xml    
+		    breaksw
+		case Calibration:
+		    set calib_flag = "true"
+		    cp sipixel_monitorelement_config_calibrations.xml sipixel_monitorelement_config.xml
+		    breaksw
 		default:
-		    echo "${monlist} is not a valid monitor element choice.  Valid options are: RawData, Digi, Cluster, RecHit, Track, Gain, SCurve, PixelAlive, All.  Choosing All overrides all other options."
+		    echo "${monlist} is not a valid monitor element choice.  Valid options are Physics or Calibration."
 		    breaksw
 		endsw
-	      
-	    sed "/$regspot/ r $reglist" < sipixel_monitorelement_skeleton.xml > temp.xml
+	      if( $physics_flag != "true" && $calib_flag != "true" ) then
+		
+		sed "/$regspot/ r $reglist" < sipixel_monitorelement_skeleton.xml > temp.xml
 		cp temp.xml sipixel_monitorelement_skeleton.xml
 		rm temp.xml
-	    if($grandspot != $regspot) then
-	    sed "/$grandspot/ r $grandlist" < sipixel_monitorelement_skeleton.xml > temp.xml
-		cp temp.xml sipixel_monitorelement_skeleton.xml
-		rm temp.xml
+		if($grandspot != $regspot) then
+		    sed "/$grandspot/ r $grandlist" < sipixel_monitorelement_skeleton.xml > temp.xml
+		    cp temp.xml sipixel_monitorelement_skeleton.xml
+		    rm temp.xml
+		endif
 	    endif
 		@ i = $i + 1
     end
 
-    if( $var_flag[6] == 1 ) then
-	set calib_use = 1
-    else
-	set calib_use = 0
-    endif
-    sed "s/CALIBUSE/$calib_use/" < sipixel_monitorelement_skeleton.xml > temp.xml
-    cp temp.xml sipixel_monitorelement_skeleton.xml
-    rm temp.xml
-
-
-
-    if ($all_flag == "false") then
+    if ($all_flag == "false" && $calib_flag == "false" && $physics_flag == "false" ) then
        cp sipixel_monitorelement_skeleton.xml sipixel_monitorelement_config.xml
        foreach me_name (RAWDATA DIGIS CLUSTERS GRANDTRACKS RECHITS GRANDGAIN GRANDSCURVE GRANDPIXEL REGTRACKS REGGAIN REGSCURVE REGPIXEL)
 	    sed "/$me_name/d" < sipixel_monitorelement_config.xml > temp.xml
@@ -135,12 +132,11 @@ else if($#argv > 1) then
     cd ../../SiPixelCommon/test
 
 else
-
-    echo "No monitor elements specified.  Using default configuration (RawData/Digis/Calibrations)"
-    set default_flag = "true"
+    set opt_flag = "false"
+    echo "No option specified!  Please choose Calibration or Physics"
 endif
 
-
+if ( $opt_flag == "true" ) then
     set xx = 2
     set depth = 0
     while ( $xx < 6 )
@@ -184,10 +180,11 @@ endif
 	    set filetorun = $osys$filename
 	endif
 
-	if( $default_flag == "false" ) then
+	if( $physics_flag == "true" ) then
+	sed "s#FILENAME#$filetorun#" < client_template_physics_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
+	else if ($calib_flag == "true" ) then
+	sed "s#FILENAME#$filetorun#" < client_template_calib_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
 	sed "s#FILENAME#$filetorun#" < client_template_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
-	else
-	sed "s#FILENAME#$filetorun#" < client_template_default_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
 	endif
 	
 	if( $all_flag == "true" ) then
@@ -211,8 +208,8 @@ endif
 	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 	    set source_type = "NewEventStreamFileReader"
-	    set first_param = " max_event_size = cms.int32(7000000)"
-	    set second_param = " max_queue_depth = cms.int32(5)"
+	    set first_param = " max_event_size = cms.int32(7000000),"
+	    set second_param = " max_queue_depth = cms.int32(5),"
 	    set converter = "datconverter,"
 	    sed "/siPixelDigis/ i\ $converter" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
@@ -317,7 +314,7 @@ endif
 	endif
 
 
-	if( $var_flag[6] == 1) then
+	if( $calib_flag == "true") then
 		if( $has_calibdigis != "true" ) then
 	    		sed "s/CDSPOT/process.siPixelCalibDigis*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 	    		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
@@ -325,12 +322,6 @@ endif
 			
 		endif
 		set calibration_tag = "CRZT210_V1P::All"
-		sed '/^PHYS/d' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
-		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
-		rm temp.xml
-		sed 's/CALIB//' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
-		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
-		rm temp.xml
 			sed "s/GLOBALCALIB/$calibtype/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
 		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 		rm temp.xml
@@ -418,4 +409,4 @@ endif
 	
     end
 
-
+endif
