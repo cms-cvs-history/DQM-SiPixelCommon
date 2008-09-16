@@ -158,7 +158,7 @@ if ( $opt_flag == "true" ) then
 	set rsys = "rfio:"
 	set osys = "file:"
 	set iscastor = `echo $filename | grep -o /castor/cern.ch`
-	set calibtype = `echo $filename | grep -o -e "PixelAlive" -e "SCurve" -e "Gain"`
+	set calibtype = `echo $filename | grep -o -e "PixelAlive" -e "SCurve" -e "GainCalibration"`
 	set file_extension = `echo $filename | grep -o -e ".dmp" -e ".root" -e ".dat"`
 	set endrun = `echo $filename | grep -o -e "_[0-9]\{2,\}\."`
 	set runnumber = `echo $endrun | grep -o -e ".*[^\.]"`
