@@ -15,7 +15,9 @@ if(-e ../../SiPixelMonitorClient/test/sipixel_monitorelement_skeleton_backup.xml
     set var_flag = ( 0 0 0 0 0 0 0 0 0 0 )
 if( !(-d ../../../DQM/SiPixelMonitorClient/test)) then
     echo "Please check out the DQM/SiPixelMonitorClient package"
-else if($#argv > 1) then
+endif
+
+if($#argv > 1) then
     cd ../../../DQM/SiPixelMonitorClient/test
     cp sipixel_monitorelement_config.xml sipixel_monitorelement_backup.xml
     cp sipixel_monitorelement_skeleton.xml sipixel_monitorelement_skeleton_backup.xml
@@ -166,7 +168,7 @@ if ( $opt_flag == "true" ) then
 	
 
 	
-	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "Gain") then
+	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "GainCalibration") then
 	    set tagnumber = $calibtype$runnumber	    
 	else
 	    set tagnumber = "PixelAlive_default"
@@ -184,6 +186,7 @@ if ( $opt_flag == "true" ) then
 	sed "s#FILENAME#$filetorun#" < client_template_physics_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
 	else if ($calib_flag == "true" ) then
 	sed "s#FILENAME#$filetorun#" < client_template_calib_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
+	else
 	sed "s#FILENAME#$filetorun#" < client_template_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
 	endif
 	
@@ -194,9 +197,6 @@ if ( $opt_flag == "true" ) then
 	cp temp_cfg.py Run_offline_DQM_${file_counter}_cfg.py
 	rm temp_cfg.py
 	endif
-
-	
-
        
         sed "s#CALIBRATIONTAG#$tagnumber#" < Run_offline_DQM_${file_counter}_cfg.py > temp_cfg.py
 	cp temp_cfg.py Run_offline_DQM_${file_counter}_cfg.py
